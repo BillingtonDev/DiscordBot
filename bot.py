@@ -4,6 +4,7 @@ import os
 import random
 import discord
 from dotenv import load_dotenv
+from discord.ext import commands
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -14,26 +15,27 @@ intents = discord.Intents.default()
 intents.message_content = True  
 
 
-client = discord.Client(intents=intents)
+#bot = discord.bot(intents=intents)
+bot = commands.Bot(command_prefix="!", intents=intents)
 
-@client.event
+@bot.event
 async def on_ready():
-    guild = discord.utils.get(client.guilds, name=GUILD)
+    guild = discord.utils.get(bot.guilds, name=GUILD)
     print(
-        f'{client.user} is connected to the following guild:\n'
+        f'{bot.user} is connected to the following guild:\n'
         f'{guild.name}(id: {guild.id})'
     )
     
-@client.event
+@bot.event
 async def on_member_join(member):
     await member.create.dm()
     await member.dm_channel.send(
         f'Hi {member.name}, welcome to my Discord server!'
     )
 
-@client.event
+@bot.event
 async def on_message(message):
-    if message.author == client.user:
+    if message.author == bot.user:
         return
     wc_quotes = [
         "We shall never surrender",
@@ -47,11 +49,11 @@ async def on_message(message):
     elif message.content == 'raise-exception':
         raise discord.DiscordException
 
-@client.event
+@bot.event
 async def on_error(event, *args, **kwargs):
     with open('err.log', 'a') as f:
         if event == 'on_message':
             f.write(f'Unhandled message:{args[0]}\n')
         else:
             raise
-client.run(TOKEN)
+bot.run(TOKEN)
