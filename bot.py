@@ -32,23 +32,7 @@ async def on_member_join(member):
     await member.dm_channel.send(
         f'Hi {member.name}, welcome to my Discord server!'
     )
-
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
-    wc_quotes = [
-        "We shall never surrender",
-        "Victory!",
-        "Like putting your head in a lion's mouth!"
-    ]
     
-    if message.content == "wc":
-        response = random.choice(wc_quotes)
-        await message.channel.send(response)
-    elif message.content == 'raise-exception':
-        raise discord.DiscordException
-
 @bot.event
 async def on_error(event, *args, **kwargs):
     with open('err.log', 'a') as f:
@@ -56,4 +40,39 @@ async def on_error(event, *args, **kwargs):
             f.write(f'Unhandled message:{args[0]}\n')
         else:
             raise
+
+@bot.command(name='wc', help='Responds with a random quote from Winston Churchill.')
+async def winston(ctx):
+    wc_quotes = [
+        "We shall never surrender",
+        "Victory!",
+        "Like putting your head in a lion's mouth!"
+    ]
+    
+    response = random.choice(wc_quotes)
+    await ctx.send(response)
+
+@bot.command(name='roll_dice', help='Simulate rolling dice. Enter as !ctx num_dice num_sides.')
+async def roll(ctx, num_dice: int, num_sides: int):
+    dice = [
+        str(random.choice(range(1, num_sides + 1)))
+        for _ in range(num_dice)
+    ]
+    await ctx.send(', '.join(dice))
+        
+        
+@bot.command(name='create-channel')
+@commands.has_role('admin')
+async def create_channel(ctx, channel_name):
+    guild = ctx.guild
+    existing_channel = discord.utils.get(guild.channels, name=channel_name)
+    if not existing_channel:
+        print(f'Creating a new channel: {channel_name}')
+        await guild.create_text_channel(channel_name)   
+        
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.errors.CheckFailure):
+        await ctx.send('You do not have the correct role for this command.')
+
 bot.run(TOKEN)
