@@ -1,5 +1,8 @@
-
-# bot.py
+'''
+Author: Micah
+Description: Application to learn how to build bots in Python.
+Source(s): https://realpython.com/how-to-make-a-discord-bot-python/#using-utility-functions
+'''
 import os
 import random
 import discord
